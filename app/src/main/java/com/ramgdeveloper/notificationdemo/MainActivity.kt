@@ -10,6 +10,7 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.RemoteInput
 
 class MainActivity : AppCompatActivity() {
 
@@ -18,12 +19,13 @@ class MainActivity : AppCompatActivity() {
     private val channelName = "MyChannel"
     private val notificationId = 1
     private var notificationManager: NotificationManager? = null
+    private val keyReply = "key_reply"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        creteNotificationChannel()
+        createNotificationChannel()
         btn = findViewById(R.id.button)
 
 
@@ -50,6 +52,17 @@ class MainActivity : AppCompatActivity() {
         val actionSettings: NotificationCompat.Action = NotificationCompat.Action.Builder(0, "Settings", pendingIntentSettings).build()
 
         //Reply Action on Notification
+        val remoteInput: RemoteInput = RemoteInput.Builder(keyReply).run {
+            setLabel("Enter Your reply...")
+            build()
+        }
+
+        val replyAction: NotificationCompat.Action = NotificationCompat.Action.Builder(
+                0,
+                "Reply",
+                pendingIntent
+        ).addRemoteInput(remoteInput).build()
+
 
         // Building Notification
         val notification = NotificationCompat.Builder(this, channelID)
@@ -57,17 +70,18 @@ class MainActivity : AppCompatActivity() {
             .setContentText("My simple notification demo")
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setContentIntent(pendingIntent)
+                //.setContentIntent(pendingIntent)
                 // setting actions on detail and settings
                 .addAction(actionDetails)
                 .addAction(actionSettings)
+                .addAction(replyAction)
             .build()
 
         val notificationManager = NotificationManagerCompat.from(this)
         notificationManager.notify(notificationId,notification)
     }
 
-    private fun creteNotificationChannel(){
+    private fun createNotificationChannel(){
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
 
